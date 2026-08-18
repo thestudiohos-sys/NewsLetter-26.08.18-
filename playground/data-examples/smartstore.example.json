@@ -1,0 +1,42 @@
+{
+  "storeName": "House of Sea",
+  "category": "생활·주방용품",
+  "targetCustomer": "실용적이면서 감각적인 생활용품을 찾는 20~40대 고객",
+  "newsletterTopic": "일상을 조금 더 편리하게 만드는 이번 주 추천상품",
+  "tone": "친근하고 신뢰감 있게, 과장된 광고 표현은 사용하지 않음",
+  "products": [
+    {
+      "name": "접이식 실리콘 보관용기 세트",
+      "price": "29,900원",
+      "features": [
+        "사용하지 않을 때 접어서 보관 가능",
+        "서로 다른 크기의 용기 3개 구성",
+        "전자레인지와 식기세척기 사용 가능"
+      ],
+      "recommendationReason": "주방 수납공간이 부족하거나 도시락 용기를 자주 사용하는 고객에게 실용적입니다.",
+      "url": "https://smartstore.naver.com/example/products/100000001"
+    },
+    {
+      "name": "무선 미니 테이블 조명",
+      "price": "24900",
+      "features": [
+        "USB-C 충전 방식",
+        "밝기 3단계 조절",
+        "침실과 책상에서 사용할 수 있는 소형 디자인"
+      ],
+      "recommendationReason": "콘센트 위치에 구애받지 않고 은은한 조명이 필요한 공간에 활용하기 좋습니다.",
+      "url": "https://smartstore.naver.com/example/products/100000002"
+    },
+    {
+      "name": "다용도 케이블 정리 클립",
+      "price": "9,900원",
+      "features": [
+        "책상 위 케이블 고정 가능",
+        "접착식 설치",
+        "크기가 다른 케이블을 정리할 수 있는 구성"
+      ],
+      "recommendationReason": "책상 주변의 충전선과 전원 케이블을 간단히 정리하려는 고객에게 적합합니다.",
+      "url": "https://smartstore.naver.com/example/products/100000003"
+    }
+  ]
+}

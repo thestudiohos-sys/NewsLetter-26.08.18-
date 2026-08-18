@@ -39,10 +39,14 @@
     "lint:fix": "eslint --fix ./src",
     "lint:ci": "eslint --quiet ./src",
     "typecheck": "tsc --noEmit",
+    "typecheck:playground": "tsc --project tsconfig.playground.json",
     "format": "prettier --write \"**/*.{ts,tsx,js,jsx,mjs,json,md,mdx}\"",
     "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,mjs,json,md,mdx}\"",
     "playground": "tsx",
-    "playground:generate-newsletter": "tsx playground/generate-newsletter.ts"
+    "playground:generate-newsletter": "tsx playground/generate-newsletter.ts",
+    "playground:test-lmstudio": "tsx playground/test-lmstudio.ts",
+    "playground:validate-smartstore": "tsx playground/smartstore-input.ts",
+    "playground:smartstore-newsletter": "tsx playground/generate-smartstore-newsletter.ts"
   },
   "author": "kimhongyeon",
   "license": "Apache-2.0",

@@ -15,7 +15,7 @@ export default defineConfig({
     clearMocks: true,
     setupFiles: ['./vitest.setup.ts'],
     pool: 'threads',
-    include: ['src/**/*.{test,spec}.{ts,js,mjs}'],
+    include: ['src/**/*.{test,spec}.{ts,js,mjs}', 'playground/**/*.test.ts'],
     coverage: {
       provider: 'v8',
       reporter: process.env.TEST_MODE === 'ci' ? ['json-summary'] : ['text'],
