@@ -46,7 +46,8 @@
     "playground:generate-newsletter": "tsx playground/generate-newsletter.ts",
     "playground:test-lmstudio": "tsx playground/test-lmstudio.ts",
     "playground:validate-smartstore": "tsx playground/smartstore-input.ts",
-    "playground:smartstore-newsletter": "tsx playground/generate-smartstore-newsletter.ts"
+    "playground:smartstore-newsletter": "tsx playground/generate-smartstore-newsletter.ts",
+    "playground:render-smartstore-html": "tsx playground/render-smartstore-html.ts"
   },
   "author": "kimhongyeon",
   "license": "Apache-2.0",
