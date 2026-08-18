@@ -1,6 +1,6 @@
-import type { PromptProvider } from '@llm-newsletter-kit/core';
-
 import type { SmartStoreInput } from './smartstore-input';
+
+import { z } from 'zod';
 
 const FORBIDDEN_FACTS = [
   '할인',
@@ -9,53 +9,86 @@ const FORBIDDEN_FACTS = [
   '무료배송',
   '재고',
   '판매량',
-  '리뷰 수',
+  '리뷰',
   '효능',
   '인증',
   '원산지',
   '소재',
-  '크기',
   '성능',
   '비교 우위',
   '1위',
   '최저가',
   '베스트셀러',
-];
+] as const;
 
-export function createSmartStorePromptProvider(
-  input: SmartStoreInput,
-): PromptProvider {
+const UNSUPPORTED_CTA_PATHS = [
+  { label: '프로필 링크', pattern: /프로필(?:의)?\s*링크/u },
+  { label: '바이오 링크', pattern: /바이오(?:의)?\s*링크/u },
+  { label: 'DM', pattern: /(?<![\p{L}\p{N}])(?:DM|디엠)(?![\p{L}\p{N}])/iu },
+  {
+    label: '댓글 링크',
+    pattern: /(?:고정\s*)?댓글(?:에|의)?\s*(?:있는\s*)?(?:링크|주소)/u,
+  },
+  { label: '간접 구매 경로', pattern: /(?:구매|주문|스토어)\s*(?:링크|경로)/u },
+] as const;
+
+const UNSUPPORTED_RESULT_CLAIMS = [
+  { label: '고민 끝', pattern: /고민(?:은|이)?\s*끝/u },
+  { label: '고민 해결', pattern: /고민(?:을)?\s*해결/u },
+  { label: '완벽 해결', pattern: /완벽(?:하게)?\s*해결/u },
+  { label: '확실하게 해결', pattern: /확실하게\s*해결/u },
+  { label: '공간 확보', pattern: /공간(?:을)?\s*확보/u },
+  { label: '한 번에 정리', pattern: /한\s*번에\s*정리/u },
+  { label: '삶의 질 향상', pattern: /삶의\s*질(?:을)?\s*(?:향상|높)/u },
+  {
+    label: '생활의 질 향상',
+    pattern: /생활의\s*질(?:을)?\s*(?:향상|높)/u,
+  },
+  { label: '무조건', pattern: /무조건/u },
+  { label: '필수템', pattern: /필수템/u },
+  { label: '최고의', pattern: /최고의/u },
+  { label: '완벽한', pattern: /완벽한/u },
+] as const;
+
+const editorialText = (label: string, minimum: number, maximum: number) =>
+  z
+    .string()
+    .trim()
+    .min(minimum, `${label}은(는) ${minimum}자 이상이어야 합니다.`)
+    .max(maximum, `${label}은(는) ${maximum}자를 초과할 수 없습니다.`);
+
+export const newsletterEditorialSchema = z.strictObject({
+  title: editorialText('뉴스레터 제목', 20, 70),
+  intro: editorialText('뉴스레터 인트로', 20, 500),
+  cta: editorialText('뉴스레터 CTA', 5, 200),
+});
+
+export type NewsletterEditorial = z.infer<typeof newsletterEditorialSchema>;
+
+export function createNewsletterEditorialPrompts(input: SmartStoreInput): {
+  system: string;
+  prompt: string;
+} {
+  const productNames = input.products
+    .map(({ name }, index) => `${index + 1}. ${name}`)
+    .join('\n');
+
   return {
-    contentGenerate: {
-      generateNewsletter: {
-        system: () => `당신은 스마트스토어 상품 큐레이션 뉴스레터 편집자입니다.
+    system: `당신은 한국어 상품 큐레이션 뉴스레터 편집자입니다.
 
-목표는 상품 광고 문구를 나열하는 것이 아니라 타깃 고객이 제공된 상품 정보를 편하게 이해하도록 돕는 것입니다.
+프로그램이 상품명, 가격, 특징, 추천 이유, URL을 원문 그대로 별도 렌더링합니다. 당신은 상품 사실을 작성하지 말고 뉴스레터의 편집 문맥만 생성하십시오.
 
-반드시 지킬 규칙:
-1. 제공된 입력 데이터만 사용하고 추측, 보완, 상식에 의한 확장을 하지 마십시오.
-2. 상품명, 가격, URL은 한 글자도 바꾸지 말고 각 상품 소개에 그대로 포함하십시오.
-3. 가격은 계산 대상이 아닌 원문 문자열입니다. 통화 단위나 기호를 추가하거나 제거하지 마십시오. 예를 들어 입력 가격이 "24900"이면 반드시 "24900"으로 쓰고 "24900원"으로 바꾸지 마십시오.
-4. 상품 특징과 추천 이유도 요약하거나 재작성하지 말고 원문 그대로 포함하십시오.
-5. 상품별 섹션에는 상품명, 가격, 특징, 추천 이유, 상품 URL 외의 별도 설명 문장을 추가하지 마십시오.
-6. 입력에 없는 다음 정보는 언급하지 마십시오: ${FORBIDDEN_FACTS.join(', ')}.
-7. 자연스러운 한국어로 작성하고 번역체, 과장 표현, 비교 우위 표현을 피하십시오.
-8. 동일한 CTA를 반복하지 말고 마지막에 자연스러운 CTA를 한 번만 작성하십시오.
-9. Markdown으로 작성하되 표는 사용하지 마십시오.
-10. 제목은 한국어 20자 이상 70자 이하로 작성하십시오.
-11. 본문은 짧은 인트로, 상품별 소개, 특징, 추천 이유, 정확한 상품 URL, 마지막 CTA 순서로 구성하십시오.
-12. 구조화 응답의 언어·저작권·사실성 검증값은 위 규칙을 실제로 모두 지킨 경우에만 true로 반환하십시오.`,
-        user: (context) => {
-          const products = context.targetArticles
-            .map(
-              (article, index) => `### 상품 ${index + 1}
-상품명: ${article.title}
-${article.detailContent}
-상품 URL: ${article.url}`,
-            )
-            .join('\n\n');
-
-          return `다음 정보만 사용하여 한국어 스마트스토어 상품 큐레이션 뉴스레터를 작성하십시오.
+규칙:
+1. title, intro, cta 세 필드만 생성하십시오.
+2. title은 20~70자의 자연스러운 한국어 제목으로 작성하십시오.
+3. intro는 타깃 고객과 주제를 연결하는 짧은 도입부로 작성하되 상품의 가격, 특징, 효능, 판매 조건을 설명하지 마십시오.
+4. cta는 독자가 아래에 이미 표시된 실제 상품 URL을 필요에 따라 살펴보도록 안내하는 짧은 문장으로 작성하십시오.
+5. 프로필 링크, 바이오 링크, DM, 댓글 링크 등 입력에 없는 이동 경로를 만들지 마십시오.
+6. 할인, 쿠폰, 배송, 재고, 리뷰, 판매량, 효능, 인증, 원산지, 소재, 성능, 비교 우위, 1위, 최저가, 베스트셀러를 생성하지 마십시오.
+7. 고민 해결, 고민 끝, 공간 확보, 한 번에 정리, 완벽 해결, 삶의 질 향상처럼 결과를 보장하는 표현을 사용하지 마십시오.
+8. 자연스럽고 신뢰감 있는 한국어를 사용하고 과장, 해시태그, 이모지를 피하십시오.
+9. 상품별 사실이나 상품 섹션을 작성하지 마십시오.`,
+    prompt: `다음 편집 정보와 상품명만 참고하여 뉴스레터의 제목, 인트로, 마지막 CTA를 생성하십시오.
 
 스토어명: ${input.storeName}
 카테고리: ${input.category}
@@ -63,19 +96,87 @@ ${article.detailContent}
 뉴스레터 주제: ${input.newsletterTopic}
 원하는 문체: ${input.tone}
 
-${products}
+상품명:
+${productNames}
 
-작성 확인사항:
-- 뉴스레터 주제와 타깃 고객을 인트로와 추천 맥락에 반영하십시오.
-- 입력된 문체를 따르십시오.
-- ${context.targetArticles.length}개 상품을 빠짐없이 소개하십시오.
-- 각 상품 섹션은 다음 필드만 사용하십시오: 상품명, 가격, 특징, 추천 이유, 상품 URL.
-- 각 필드의 값은 위 원문을 그대로 복사하고, 상품별 별도 요약 문장을 만들지 마십시오.
-- 입력에 없는 판매 조건이나 제품 정보를 만들지 마십시오.`;
-        },
-      },
-    },
+가격, 특징, 추천 이유, URL은 프로그램이 원문 그대로 삽입하므로 생성하거나 추측하지 마십시오.`,
   };
+}
+
+export function findNewsletterEditorialViolations(
+  input: SmartStoreInput,
+  editorial: NewsletterEditorial,
+): string[] {
+  const output = `${editorial.title}\n${editorial.intro}\n${editorial.cta}`;
+  const inputText = JSON.stringify(input);
+  const violations: string[] = [];
+
+  for (const term of FORBIDDEN_FACTS) {
+    if (!inputText.includes(term) && output.includes(term)) {
+      violations.push(`입력에 없는 금지 정보 언급: ${term}`);
+    }
+  }
+
+  for (const { label, pattern } of UNSUPPORTED_CTA_PATHS) {
+    if (pattern.test(output)) {
+      violations.push(`입력에 없는 CTA 경로: ${label}`);
+    }
+  }
+
+  for (const { label, pattern } of UNSUPPORTED_RESULT_CLAIMS) {
+    if (pattern.test(output)) {
+      violations.push(`근거 없는 결과 보장 표현: ${label}`);
+    }
+  }
+
+  if (/https?:\/\//u.test(output)) {
+    violations.push('LLM 편집 영역에 URL이 포함됨');
+  }
+
+  for (const product of input.products) {
+    for (const fact of [
+      product.price,
+      ...product.features,
+      product.recommendationReason,
+    ]) {
+      if (output.includes(fact)) {
+        violations.push(`LLM 편집 영역에 상품 사실이 포함됨: ${fact}`);
+      }
+    }
+  }
+
+  return [...new Set(violations)];
+}
+
+export function renderSmartStoreNewsletterMarkdown(
+  input: SmartStoreInput,
+  editorial: NewsletterEditorial,
+): string {
+  const productSections = input.products
+    .map(
+      (product) => `### ${product.name}
+**가격:** ${product.price}
+**특징:**
+${product.features.map((feature) => `- ${feature}`).join('\n')}
+**추천 이유:** ${product.recommendationReason}
+**상품 URL:** ${product.url}`,
+    )
+    .join('\n\n');
+
+  return `---
+title: ${JSON.stringify(editorial.title)}
+---
+
+${editorial.intro}
+
+***
+
+${productSections}
+
+***
+
+${editorial.cta}
+`;
 }
 
 export function findNewsletterFactViolations(
