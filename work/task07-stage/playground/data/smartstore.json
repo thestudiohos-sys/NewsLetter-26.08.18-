@@ -1,0 +1,41 @@
+{
+  "storeName": "마이 올 코리아 (My All Korea)",
+  "heroImage": "playground/assets/brand/host_main3.jpeg",
+  "category": "종합 라이트 스타일 / 잡화",
+  "targetCustomer": "25~45세 실용 소비층 및 1인 가구 / 신혼부부",
+  "newsletterTopic": "신상품 출시",
+  "tone": "상냥한 쇼핑 호스트와 같은 말투",
+  "products": [
+    {
+      "name": "울 드라이어 건조기 세탁 드라이 볼 6P 양모 건조 섬유 세탁 볼",
+      "price": "9500원",
+      "features": [
+        "섬유 정전기 방지",
+        "두드림 효과로 먼지제거 및 의류를 부드럽게 해줌",
+        "건조시간 단축",
+        "약 1000회 사용"
+      ],
+      "recommendationReason": "뉴질랜드 천연 양모로 만들어 합성섬유나 화학 물질이 없는 순수한 천연 물질로 몸에 해롭지 않음",
+      "mainImage": "playground/assets/product/wool-dryer-main.png",
+      "secondaryImage": "playground/assets/product/wool-dryer-sub1.png",
+      "url": "https://smartstore.naver.com/myallkorea1/products/4722404825"
+    },
+    {
+      "name": "케라시스 오리지날 샴푸 600ml 컨디셔너 오리지널 린스 헤어",
+      "price": "3850 원",
+      "features": ["모발 영양 공급", "손상 집중 케어", "모발 건강 유지"],
+      "recommendationReason": "3단계 영양 (아르간 오일 + 호호바 오일 + 아보카도 오일), 세라마이드(거칠어진 모발을 매끈하고 건강하게 관리), 허브 추출물(아미노산, 비타민 성분이 풍부한 스위스 고산지대의 청정 허브 추출물로 모발 건강 유지)",
+      "mainImage": "playground/assets/product/kerasys-main.png",
+      "url": "https://smartstore.naver.com/myallkorea1/products/4650445748"
+    },
+    {
+      "name": "에어 냉감 귀걸이 마스크 버프 멀티 냉감 스포츠 메쉬 마스크",
+      "price": "11620 원",
+      "features": ["매쉬원단", "귀걸이", "자외선 차단 원단", "3계절 착용 가능"],
+      "recommendationReason": "호흡 문제 개선, 흘러내림 최소화, 햇빛으로부터 피부 보호, 높은 실용성",
+      "mainImage": "playground/assets/product/cool-mask-main.png",
+      "secondaryImage": "playground/assets/product/cool-mask-sub1.png",
+      "url": "https://smartstore.naver.com/myallkorea1/products/5728986440"
+    }
+  ]
+}
