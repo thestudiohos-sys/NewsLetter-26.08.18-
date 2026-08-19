@@ -13,30 +13,78 @@ function requiredText(label: string) {
     });
 }
 
-const productSchema = z.strictObject({
-  name: requiredText('상품명'),
-  price: requiredText('가격'),
-  features: z
-    .array(requiredText('상품 특징'), {
-      error: '상품 특징은 문자열 배열로 입력해야 합니다.',
-    })
-    .min(1, '상품 특징은 최소 1개 입력해야 합니다.'),
-  recommendationReason: requiredText('추천 이유'),
-  url: requiredText('상품 URL')
+function httpUrl(label: string) {
+  const subject = label.endsWith('URL') ? `${label}은` : `${label}은(는)`;
+  return requiredText(label)
     .refine((value) => URL.canParse(value), {
-      message: '상품 URL은 올바른 URL 형식이어야 합니다.',
+      message: `${subject} 올바른 URL 형식이어야 합니다.`,
     })
     .refine(
       (value) => {
         if (!URL.canParse(value)) return true;
         return ['http:', 'https:'].includes(new URL(value).protocol);
       },
-      { message: '상품 URL은 http 또는 https 주소여야 합니다.' },
-    ),
-});
+      { message: `${subject} http 또는 https 주소여야 합니다.` },
+    );
+}
+
+function isAllowedImageSource(value: string): boolean {
+  const normalized = value.replaceAll('\\', '/');
+
+  if (URL.canParse(normalized)) {
+    return ['http:', 'https:'].includes(new URL(normalized).protocol);
+  }
+
+  if (
+    normalized.startsWith('/') ||
+    /^[A-Za-z]:\//u.test(normalized) ||
+    normalized.split('/').includes('..')
+  ) {
+    return false;
+  }
+
+  return normalized.startsWith('playground/assets/');
+}
+
+function optionalImageSource(label: string) {
+  return z
+    .string({ error: `${label}은(는) 문자열 경로로 입력해야 합니다.` })
+    .trim()
+    .min(1, `${label}은(는) 빈 경로일 수 없습니다.`)
+    .refine(isAllowedImageSource, {
+      message: `${label}은(는) playground/assets/ 내부 상대경로 또는 http/https URL이어야 하며 ../ 또는 절대경로를 사용할 수 없습니다.`,
+    })
+    .optional();
+}
+
+const productSchema = z
+  .strictObject({
+    name: requiredText('상품명'),
+    price: requiredText('가격'),
+    features: z
+      .array(requiredText('상품 특징'), {
+        error: '상품 특징은 문자열 배열로 입력해야 합니다.',
+      })
+      .min(1, '상품 특징은 최소 1개 입력해야 합니다.'),
+    recommendationReason: requiredText('추천 이유'),
+    mainImage: optionalImageSource('상품 대표 이미지'),
+    secondaryImage: optionalImageSource('상품 보조 이미지'),
+    url: httpUrl('상품 URL'),
+  })
+  .superRefine((product, context) => {
+    if (product.secondaryImage && !product.mainImage) {
+      context.addIssue({
+        code: 'custom',
+        path: ['secondaryImage'],
+        message: '상품 보조 이미지는 대표 이미지와 함께 입력해야 합니다.',
+      });
+    }
+  });
 
 export const smartStoreInputSchema = z.strictObject({
   storeName: requiredText('스토어명'),
+  heroImage: optionalImageSource('Hero 이미지'),
+  storeUrl: httpUrl('스토어 URL').optional(),
   category: requiredText('카테고리'),
   targetCustomer: requiredText('타깃 고객'),
   newsletterTopic: requiredText('뉴스레터 주제'),

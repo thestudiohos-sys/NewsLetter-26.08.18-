@@ -40,6 +40,8 @@ Copy-Item playground/data-examples/smartstore.example.json playground/data/smart
 ```json
 {
   "storeName": "House of Sea",
+  "heroImage": "playground/assets/brand/host_main3.jpeg",
+  "storeUrl": "https://smartstore.naver.com/example",
   "category": "생활·주방용품",
   "targetCustomer": "실용적인 생활용품을 찾는 고객",
   "newsletterTopic": "일상을 편리하게 만드는 추천상품",
@@ -50,6 +52,8 @@ Copy-Item playground/data-examples/smartstore.example.json playground/data/smart
       "price": "19,900원",
       "features": ["접어서 보관 가능", "식기세척기 사용 가능"],
       "recommendationReason": "수납공간이 부족한 경우 활용하기 좋습니다.",
+      "mainImage": "playground/assets/product/wool-dryer-main.png",
+      "secondaryImage": "playground/assets/product/wool-dryer-sub1.png",
       "url": "https://smartstore.naver.com/example/products/1"
     }
   ]
@@ -57,6 +61,10 @@ Copy-Item playground/data-examples/smartstore.example.json playground/data/smart
 ```
 
 상품은 1~5개 입력할 수 있습니다. 상품명, 가격, 특징, 추천 이유, URL은 작성한 값 그대로 결과에 사용되므로 정확하게 입력해야 합니다.
+
+이미지는 선택 입력입니다. `heroImage`는 뉴스레터 상단, `mainImage`와 `secondaryImage`는 상품 영역에 표시됩니다. 로컬 파일은 `playground/assets/` 아래의 상대경로만 사용할 수 있으며 `../` 경로나 `C:\...` 같은 절대경로는 허용되지 않습니다. 보조 이미지는 대표 이미지가 있을 때만 입력할 수 있습니다. 공개 이미지는 `http://` 또는 `https://` URL로 입력할 수 있습니다.
+
+`storeUrl`을 입력하면 하단에 스토어 이동 버튼이 표시됩니다. 입력하지 않으면 프로그램이 임의의 스토어 링크를 만들지 않습니다.
 
 ## 4. 입력 확인하기
 
@@ -104,6 +112,8 @@ playground/output/newsletter.html
 
 `newsletter.html` 파일을 더블클릭하면 브라우저에서 확인할 수 있습니다.
 
+로컬 이미지 경로는 현재 PC에서 브라우저로 미리보기 할 때만 사용할 수 있습니다. 실제 이메일 수신자는 로컬 파일을 볼 수 없으므로 이메일 발송 전에는 이미지 호스팅 또는 CDN의 공개 `https://` URL로 교체해야 합니다. 이번 MVP에는 이미지 업로드나 CDN 연동이 포함되지 않습니다.
+
 ## 7. Threads, X, 상품별 Hook 만들기
 
 ```powershell
@@ -138,6 +148,8 @@ playground/output/
 
 오류 메시지에 표시된 필드를 확인합니다. 모든 필수값을 입력하고, 상품은 1~5개로 유지하며, URL은 `http://` 또는 `https://`로 시작해야 합니다.
 
+이미지 오류라면 경로가 `playground/assets/`로 시작하는지, `../` 또는 로컬 절대경로가 포함되지 않았는지 확인합니다. `secondaryImage`를 사용하려면 같은 상품에 `mainImage`도 입력해야 합니다.
+
 ### `LM Studio /models 요청 실패` 또는 연결 오류
 
 LM Studio가 실행 중인지, API Server가 시작되었는지, 포트가 `1234`인지 확인합니다.
@@ -165,3 +177,7 @@ npm run playground:smartstore-newsletter
 ```powershell
 Copy-Item playground/data-examples/smartstore-template.example.html playground/data/smartstore-template.html
 ```
+
+### `newsletter.md와 smartstore.json의 사실 데이터가 일치하지 않습니다`
+
+현재 `smartstore.json`이 Markdown 뉴스레터를 만들 때 사용한 입력과 달라졌다는 뜻입니다. LM Studio를 실행한 뒤 `npm run playground:smartstore-newsletter`로 Markdown을 다시 생성하고 HTML 렌더링을 재시도합니다. 프로그램은 불일치를 기존 텍스트 HTML로 조용히 대체하지 않습니다.

@@ -8,111 +8,403 @@
       body {
         margin: 0;
         padding: 0;
-        background-color: #f3f4f4;
-        color: #263238;
-        font-family:
-          -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
-        line-height: 1.7;
+        background: #e9e7e0;
+        color: #181914;
+        font-family: Arial, 'Noto Sans KR', 'Apple SD Gothic Neo', sans-serif;
+        line-height: 1.65;
       }
 
       .page {
         width: 100%;
-        background-color: #f3f4f4;
+        background: #e9e7e0;
       }
 
       .container {
         width: 100%;
         max-width: 680px;
         margin: 0 auto;
-        background-color: #ffffff;
+        background: #f8f6ef;
       }
 
-      .header {
-        padding: 30px 40px 24px;
-        border-bottom: 1px solid #dde2e3;
+      .topline {
+        padding: 14px 36px;
+        background: #181914;
+        color: #f8f6ef;
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 0.16em;
+        text-align: right;
       }
 
-      .brand {
-        margin: 0;
-        color: #41565d;
+      .hero {
+        overflow: hidden;
+        background: #d9ff45;
+      }
+
+      .hero-copy {
+        padding: 38px 18px 38px 40px;
+        vertical-align: middle;
+      }
+
+      .hero-visual {
+        padding: 24px 24px 0 0;
+        vertical-align: bottom;
+        text-align: center;
+      }
+
+      .hero-eyebrow,
+      .section-kicker,
+      .product-label,
+      .recommendation-label {
+        margin: 0 0 10px;
+        font-size: 10px;
+        font-weight: 800;
+        letter-spacing: 0.18em;
+      }
+
+      .hero-topic {
+        margin: 0 0 14px;
         font-size: 14px;
         font-weight: 700;
-        letter-spacing: 0.12em;
-        text-transform: uppercase;
       }
 
-      .content {
-        padding: 32px 40px 38px;
+      .hero-title {
+        margin: 0;
+        font-family: Georgia, 'Noto Serif KR', serif;
+        font-size: 32px;
+        letter-spacing: -0.04em;
+        line-height: 1.28;
       }
 
-      h1 {
-        margin: 0 0 26px;
-        color: #1f2d32;
-        font-size: 30px;
-        line-height: 1.35;
-        letter-spacing: -0.02em;
+      .hero-intro {
+        margin: 22px 0 0;
+        color: #34352f;
+        font-size: 14px;
+        line-height: 1.7;
       }
 
-      h2,
-      h3 {
-        margin: 32px 0 14px;
-        padding-top: 28px;
-        border-top: 1px solid #e3e7e8;
-        color: #263b42;
-        font-size: 21px;
-        line-height: 1.45;
+      .hero-store {
+        margin: 18px 0 0;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0.08em;
       }
 
-      p {
-        margin: 0 0 18px;
+      .hero-image {
+        display: block;
+        width: auto;
+        max-width: 100%;
+        max-height: 320px;
+        height: auto;
+        margin: 0 auto;
+        border: 0;
       }
 
-      ul,
-      ol {
-        margin: 8px 0 20px;
-        padding-left: 24px;
+      .hero-image-fallback {
+        box-sizing: border-box;
+        min-height: 260px;
+        padding: 170px 20px 20px;
+        border: 1px solid #181914;
+        color: #181914;
+        font-family:
+          Arial Black,
+          Arial,
+          sans-serif;
+        font-size: 20px;
+        line-height: 1;
+        text-align: left;
       }
 
-      li {
+      .store-story,
+      .products-heading,
+      .bottom-cta {
+        padding: 48px 54px;
+      }
+
+      .store-story {
+        background: #181914;
+        color: #f8f6ef;
+      }
+
+      .store-story .section-kicker {
+        color: #d9ff45;
+      }
+
+      .store-story-copy {
+        margin: 0;
+        font-family: Georgia, 'Noto Serif KR', serif;
+        font-size: 20px;
+        line-height: 1.7;
+      }
+
+      .products-heading {
+        padding-bottom: 34px;
+        background: #f8f6ef;
+      }
+
+      .products-heading h2,
+      .bottom-cta h2 {
+        margin: 0;
+        font-family:
+          Arial Black,
+          Arial,
+          sans-serif;
+        font-size: 42px;
+        letter-spacing: -0.05em;
+        line-height: 1;
+      }
+
+      .products-heading p:last-child {
+        margin: 14px 0 0;
+        color: #66675f;
+        font-size: 14px;
+      }
+
+      .product-section {
+        width: 100%;
+        border-top: 1px solid #181914;
+        background: #f8f6ef;
+      }
+
+      .product-section-alt {
+        background: #e6e0ff;
+      }
+
+      .product-column {
+        box-sizing: border-box;
+        vertical-align: middle;
+      }
+
+      .product-media {
+        padding: 32px 20px 32px 30px;
+      }
+
+      .product-details {
+        padding: 38px 32px;
+      }
+
+      .product-images,
+      .product-images td {
+        vertical-align: bottom;
+      }
+
+      .main-image-cell {
+        text-align: center;
+      }
+
+      .secondary-image-cell {
+        padding-left: 10px;
+        text-align: center;
+      }
+
+      .product-image-link,
+      .secondary-image-link {
+        display: block;
+      }
+
+      .product-image,
+      .secondary-image {
+        display: block;
+        width: auto;
+        max-width: 100%;
+        height: auto;
+        margin: 0 auto;
+        border: 0;
+      }
+
+      .product-image {
+        max-height: 310px;
+      }
+
+      .secondary-image {
+        max-height: 150px;
+      }
+
+      .product-image-fallback {
+        box-sizing: border-box;
+        min-height: 260px;
+        padding: 170px 22px 22px;
+        border: 1px solid #181914;
+        background: #efede5;
+        color: #77786f;
+        font-family:
+          Arial Black,
+          Arial,
+          sans-serif;
+        font-size: 20px;
+        line-height: 1;
+      }
+
+      .product-number {
+        margin: 0 0 6px;
+        font-family:
+          Arial Black,
+          Arial,
+          sans-serif;
+        font-size: 52px;
+        font-weight: 900;
+        letter-spacing: -0.08em;
+        line-height: 0.9;
+      }
+
+      .product-label {
+        color: #e34e30;
+      }
+
+      .product-name {
+        margin: 0 0 14px;
+        font-family: Georgia, 'Noto Serif KR', serif;
+        font-size: 22px;
+        line-height: 1.4;
+      }
+
+      .product-price {
+        margin: 0 0 20px;
+        font-size: 18px;
+        font-weight: 800;
+      }
+
+      .product-features {
+        margin: 0 0 22px;
+        padding: 0;
+        list-style: none;
+      }
+
+      .product-features li {
+        margin: 0;
+        padding: 7px 0;
+        border-bottom: 1px solid rgba(24, 25, 20, 0.18);
+        font-size: 13px;
+      }
+
+      .recommendation-label {
         margin-bottom: 7px;
       }
 
-      a {
-        color: #245d73;
-        font-weight: 600;
-        overflow-wrap: anywhere;
-        text-decoration: underline;
+      .recommendation-reason {
+        margin: 0 0 22px;
+        color: #4f504a;
+        font-size: 13px;
+        line-height: 1.7;
       }
 
-      hr {
-        margin: 30px 0;
-        border: 0;
-        border-top: 1px solid #dfe4e5;
+      .view-item,
+      .store-button {
+        display: inline-block;
+        padding: 12px 17px;
+        background: #181914;
+        color: #ffffff;
+        font-size: 11px;
+        font-weight: 800;
+        letter-spacing: 0.1em;
+        text-decoration: none;
+      }
+
+      .bottom-cta {
+        background: #ff6847;
+        text-align: center;
+      }
+
+      .editorial-cta {
+        margin: 22px 0 24px;
+        font-size: 14px;
+      }
+
+      .store-link-fallback {
+        margin: 0;
+        color: #3f2922;
+        font-size: 13px;
       }
 
       .footer {
-        padding: 22px 40px 28px;
-        border-top: 1px solid #dde2e3;
-        color: #68787d;
-        font-size: 13px;
+        padding: 22px 30px;
+        background: #181914;
+        color: #a9aaa3;
+        font-size: 10px;
+        letter-spacing: 0.1em;
         text-align: center;
       }
 
       @media only screen and (max-width: 600px) {
-        .header,
-        .content,
-        .footer {
-          padding-left: 22px !important;
-          padding-right: 22px !important;
+        .container {
+          width: 100% !important;
         }
 
-        h1 {
-          font-size: 25px !important;
+        .topline {
+          padding: 12px 20px !important;
         }
 
-        h2,
-        h3 {
-          font-size: 19px !important;
+        .hero-copy,
+        .hero-visual,
+        .product-column {
+          display: block !important;
+          width: 100% !important;
+        }
+
+        .hero-copy {
+          padding: 34px 24px 22px !important;
+        }
+
+        .hero-visual {
+          padding: 0 24px 22px !important;
+        }
+
+        .hero-title {
+          font-size: 28px !important;
+        }
+
+        .hero-image {
+          max-height: 280px !important;
+        }
+
+        .hero-image-fallback {
+          min-height: 190px !important;
+          padding-top: 112px !important;
+        }
+
+        .store-story,
+        .products-heading,
+        .bottom-cta {
+          padding: 40px 24px !important;
+        }
+
+        .store-story-copy {
+          font-size: 18px !important;
+        }
+
+        .products-heading h2,
+        .bottom-cta h2 {
+          font-size: 34px !important;
+        }
+
+        .product-media {
+          padding: 28px 24px 12px !important;
+        }
+
+        .product-details {
+          padding: 28px 24px 40px !important;
+        }
+
+        .product-number {
+          font-size: 46px !important;
+        }
+
+        .product-name {
+          font-size: 21px !important;
+        }
+
+        .product-image {
+          max-height: 290px !important;
+        }
+
+        .secondary-image {
+          max-height: 130px !important;
+        }
+
+        .view-item,
+        .store-button {
+          box-sizing: border-box;
+          max-width: 100% !important;
         }
       }
     </style>
@@ -137,18 +429,7 @@
             border="0"
           >
             <tr>
-              <td class="header">
-                <p class="brand">House of Sea</p>
-              </td>
-            </tr>
-            <tr>
-              <td class="content">
-                <h1>{{title}}</h1>
-                {{content}}
-              </td>
-            </tr>
-            <tr>
-              <td class="footer">House of Sea · Product Curation Newsletter</td>
+              <td>{{content}}</td>
             </tr>
           </table>
         </td>

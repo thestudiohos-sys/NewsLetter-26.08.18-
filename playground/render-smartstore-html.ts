@@ -3,6 +3,7 @@ import { resolve } from 'node:path';
 
 import { DATA_DIR, OUTPUT_DIR, ensureDir, loadText } from './_shared';
 import { renderSmartStoreHtml } from './smartstore-html';
+import { loadSmartStoreInput } from './smartstore-input';
 
 async function main(): Promise<void> {
   const markdownPath = resolve(OUTPUT_DIR, 'newsletter.md');
@@ -30,7 +31,8 @@ async function main(): Promise<void> {
     );
   }
 
-  const html = renderSmartStoreHtml(markdown, template);
+  const input = await loadSmartStoreInput();
+  const html = renderSmartStoreHtml(markdown, template, input);
   await ensureDir(OUTPUT_DIR);
   await writeFile(outputPath, html, 'utf-8');
 
