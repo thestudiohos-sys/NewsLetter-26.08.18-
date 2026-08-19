@@ -48,7 +48,8 @@
     "playground:validate-smartstore": "tsx playground/smartstore-input.ts",
     "playground:smartstore-newsletter": "tsx playground/generate-smartstore-newsletter.ts",
     "playground:render-smartstore-html": "tsx playground/render-smartstore-html.ts",
-    "playground:smartstore-social": "tsx playground/generate-social-content.ts"
+    "playground:smartstore-social": "tsx playground/generate-social-content.ts",
+    "playground:smartstore-ui": "tsx playground/serve-smartstore-input-ui.ts"
   },
   "author": "kimhongyeon",
   "license": "Apache-2.0",

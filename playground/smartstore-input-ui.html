@@ -1,0 +1,241 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>H.O.S 상품 입력</title>
+    <link rel="stylesheet" href="smartstore-input-ui.css" />
+  </head>
+  <body>
+    <header class="page-header">
+      <div>
+        <p class="eyebrow">HOUSE OF SEA · NEWSLETTER</p>
+        <h1>상품 정보 입력</h1>
+        <p class="header-copy">
+          뉴스레터에 사용할 스토어와 상품 정보를 입력하고 오른쪽에서 결과를
+          확인하세요.
+        </p>
+      </div>
+      <span class="draft-badge">입력 초안</span>
+    </header>
+
+    <main class="workspace">
+      <form id="smartstore-form" class="input-panel" novalidate>
+        <section class="form-section" aria-labelledby="store-section-title">
+          <div class="section-heading">
+            <div>
+              <p class="step-label">STEP 01</p>
+              <h2 id="store-section-title">스토어 정보</h2>
+            </div>
+            <p><span class="required-mark">*</span> 필수 입력</p>
+          </div>
+
+          <div class="field-grid">
+            <label class="field">
+              <span>스토어명 <b class="required-mark">*</b></span>
+              <input
+                name="storeName"
+                data-store-field="storeName"
+                type="text"
+                required
+                placeholder="예: House of Sea"
+              />
+            </label>
+            <label class="field">
+              <span>스토어 URL</span>
+              <input
+                name="storeUrl"
+                data-store-field="storeUrl"
+                type="url"
+                placeholder="https://smartstore.naver.com/..."
+              />
+            </label>
+            <label class="field">
+              <span>카테고리 <b class="required-mark">*</b></span>
+              <input
+                name="category"
+                data-store-field="category"
+                type="text"
+                required
+                placeholder="예: 생활·주방용품"
+              />
+            </label>
+            <label class="field">
+              <span>주요 고객 <b class="required-mark">*</b></span>
+              <input
+                name="targetCustomer"
+                data-store-field="targetCustomer"
+                type="text"
+                required
+                placeholder="예: 실용적인 상품을 찾는 20~40대 고객"
+              />
+            </label>
+            <label class="field field-wide">
+              <span>뉴스레터 주제 <b class="required-mark">*</b></span>
+              <input
+                name="newsletterTopic"
+                data-store-field="newsletterTopic"
+                type="text"
+                required
+                placeholder="예: 이번 주 생활용품 큐레이션"
+              />
+            </label>
+            <label class="field field-wide">
+              <span>말투 <b class="required-mark">*</b></span>
+              <input
+                name="tone"
+                data-store-field="tone"
+                type="text"
+                required
+                placeholder="예: 친근하고 신뢰감 있게"
+              />
+            </label>
+            <label class="field field-wide">
+              <span>Hero 이미지 경로 또는 공개 URL</span>
+              <input
+                name="heroImage"
+                data-store-field="heroImage"
+                type="text"
+                placeholder="playground/assets/brand/hero.jpg 또는 https://..."
+              />
+              <small>로컬 이미지는 playground/assets/ 경로를 사용하세요.</small>
+            </label>
+          </div>
+        </section>
+
+        <section class="form-section" aria-labelledby="product-section-title">
+          <div class="section-heading">
+            <div>
+              <p class="step-label">STEP 02</p>
+              <h2 id="product-section-title">상품 정보</h2>
+            </div>
+            <p id="product-count" aria-live="polite">상품 1 / 5</p>
+          </div>
+
+          <div id="products" class="products"></div>
+
+          <button id="add-product" class="button button-primary" type="button">
+            + 상품 추가
+          </button>
+          <p
+            id="product-limit-message"
+            class="limit-message"
+            aria-live="polite"
+          ></p>
+        </section>
+      </form>
+
+      <aside class="preview-panel" aria-labelledby="preview-title">
+        <div class="preview-heading">
+          <div>
+            <p class="step-label">LIVE PREVIEW</p>
+            <h2 id="preview-title">입력 데이터 미리보기</h2>
+          </div>
+          <span id="preview-status">자동 갱신</span>
+        </div>
+        <p class="preview-help">
+          아래 JSON은 직접 수정하지 않습니다. 왼쪽 입력 내용이 자동으로
+          반영됩니다.
+        </p>
+        <pre id="json-preview" tabindex="0" aria-live="polite"></pre>
+      </aside>
+    </main>
+
+    <template id="product-template">
+      <article class="product-card">
+        <div class="product-card-heading">
+          <div>
+            <p class="product-number"></p>
+            <h3 class="product-title"></h3>
+          </div>
+          <button class="button button-danger remove-product" type="button">
+            상품 삭제
+          </button>
+        </div>
+
+        <div class="field-grid">
+          <label class="field field-wide">
+            <span>상품 URL <b class="required-mark">*</b></span>
+            <input
+              data-product-field="url"
+              type="url"
+              required
+              placeholder="https://smartstore.naver.com/.../products/..."
+            />
+          </label>
+          <label class="field">
+            <span>상품명 <b class="required-mark">*</b></span>
+            <input
+              data-product-field="name"
+              type="text"
+              required
+              placeholder="상품명을 그대로 입력"
+            />
+          </label>
+          <label class="field">
+            <span>가격 <b class="required-mark">*</b></span>
+            <input
+              data-product-field="price"
+              type="text"
+              required
+              placeholder="예: 19,900원"
+            />
+          </label>
+          <div class="field field-wide feature-field">
+            <span>특징 목록 <b class="required-mark">*</b></span>
+            <div class="features"></div>
+            <button class="button button-secondary add-feature" type="button">
+              + 특징 추가
+            </button>
+          </div>
+          <label class="field field-wide">
+            <span>추천 이유 <b class="required-mark">*</b></span>
+            <textarea
+              data-product-field="recommendationReason"
+              required
+              rows="3"
+              placeholder="입력 사실을 바탕으로 추천 이유를 작성"
+            ></textarea>
+          </label>
+          <label class="field">
+            <span>대표 이미지</span>
+            <input
+              data-product-field="mainImage"
+              type="text"
+              placeholder="playground/assets/product/..."
+            />
+          </label>
+          <label class="field">
+            <span>보조 이미지</span>
+            <input
+              data-product-field="secondaryImage"
+              type="text"
+              placeholder="대표 이미지가 있을 때만 입력"
+            />
+          </label>
+        </div>
+      </article>
+    </template>
+
+    <template id="feature-template">
+      <div class="feature-row">
+        <input
+          class="feature-input"
+          type="text"
+          required
+          aria-label="상품 특징"
+          placeholder="예: 접어서 보관 가능"
+        />
+        <button
+          class="button button-icon remove-feature"
+          type="button"
+          aria-label="특징 삭제"
+        >
+          삭제
+        </button>
+      </div>
+    </template>
+
+    <script src="smartstore-input-ui.js"></script>
+  </body>
+</html>
