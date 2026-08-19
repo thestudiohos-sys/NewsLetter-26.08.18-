@@ -123,6 +123,85 @@
             aria-live="polite"
           ></p>
         </section>
+
+        <section
+          class="form-section action-section"
+          aria-labelledby="action-section-title"
+        >
+          <div class="section-heading">
+            <div>
+              <p class="step-label">STEP 03</p>
+              <h2 id="action-section-title">저장 · 검증 · 생성</h2>
+            </div>
+            <span id="workflow-badge" class="workflow-badge">입력 중</span>
+          </div>
+
+          <p class="action-help">
+            입력을 저장하거나 기존 데이터를 불러온 뒤, 검증과 확정을 거쳐
+            뉴스레터를 생성하세요. JSON이나 터미널을 직접 다룰 필요가 없습니다.
+          </p>
+
+          <div class="action-grid">
+            <button
+              id="load-input"
+              class="button button-secondary"
+              type="button"
+            >
+              기존 데이터 불러오기
+            </button>
+            <button
+              id="save-input"
+              class="button button-secondary"
+              type="button"
+            >
+              입력값 저장
+            </button>
+            <button
+              id="validate-input"
+              class="button button-secondary"
+              type="button"
+            >
+              입력 검증
+            </button>
+            <button
+              id="confirm-input"
+              class="button button-confirm"
+              type="button"
+            >
+              입력 내용 확정
+            </button>
+            <button
+              id="generate-newsletter"
+              class="button button-primary action-button"
+              type="button"
+              disabled
+            >
+              뉴스레터 생성
+            </button>
+            <button
+              id="open-preview"
+              class="button button-preview"
+              type="button"
+              disabled
+            >
+              미리보기 열기
+            </button>
+          </div>
+
+          <div
+            id="workflow-status"
+            class="workflow-status"
+            role="status"
+            aria-live="polite"
+          >
+            입력 내용을 작성하거나 기존 데이터를 불러오세요.
+          </div>
+          <ul
+            id="validation-errors"
+            class="validation-errors"
+            aria-live="assertive"
+          ></ul>
+        </section>
       </form>
 
       <aside class="preview-panel" aria-labelledby="preview-title">

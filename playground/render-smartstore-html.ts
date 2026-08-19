@@ -1,11 +1,19 @@
 import { writeFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
 
 import { DATA_DIR, OUTPUT_DIR, ensureDir, loadText } from './_shared';
 import { renderSmartStoreHtml } from './smartstore-html';
 import { loadSmartStoreInput } from './smartstore-input';
 
-async function main(): Promise<void> {
+export type SmartStoreHtmlRenderResult = {
+  inputFile: string;
+  templateFile: string;
+  outputFile: string;
+  characters: number;
+};
+
+export async function renderSmartStoreNewsletterHtml(): Promise<SmartStoreHtmlRenderResult> {
   const markdownPath = resolve(OUTPUT_DIR, 'newsletter.md');
   const templatePath = resolve(DATA_DIR, 'smartstore-template.html');
   const outputPath = resolve(OUTPUT_DIR, 'newsletter.html');
@@ -41,10 +49,26 @@ async function main(): Promise<void> {
   console.log(`Template: ${templatePath}`);
   console.log(`Output: ${outputPath}`);
   console.log(`Characters: ${html.length}`);
+
+  return {
+    inputFile: markdownPath,
+    templateFile: templatePath,
+    outputFile: outputPath,
+    characters: html.length,
+  };
 }
 
-main().catch((error: unknown) => {
-  console.error('[FAIL] 스마트스토어 뉴스레터 HTML 렌더링');
-  console.error(error instanceof Error ? error.message : error);
-  process.exitCode = 1;
-});
+function isDirectExecution(): boolean {
+  return Boolean(
+    process.argv[1] &&
+    fileURLToPath(import.meta.url) === resolve(process.argv[1]),
+  );
+}
+
+if (isDirectExecution()) {
+  renderSmartStoreNewsletterHtml().catch((error: unknown) => {
+    console.error('[FAIL] 스마트스토어 뉴스레터 HTML 렌더링');
+    console.error(error instanceof Error ? error.message : error);
+    process.exitCode = 1;
+  });
+}

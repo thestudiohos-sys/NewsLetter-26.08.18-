@@ -7,7 +7,10 @@ import { createSmartStoreInputUiServer } from './serve-smartstore-input-ui';
 import { smartStoreInputSchema } from './smartstore-input';
 
 type UiWindow = Window & {
-  HOSSmartStoreInputUI: { getInputData: () => unknown };
+  HOSSmartStoreInputUI: {
+    getInputData: () => unknown;
+    setInputData: (input: unknown) => void;
+  };
 };
 
 const html = readFileSync(
@@ -59,6 +62,11 @@ function input(
 
 function preview(document: Document): Record<string, unknown> {
   return JSON.parse(document.querySelector('#json-preview')!.textContent!);
+}
+
+async function settle(window: UiWindow): Promise<void> {
+  await new Promise<void>((resolve) => window.setTimeout(resolve, 0));
+  await new Promise<void>((resolve) => window.setTimeout(resolve, 0));
 }
 
 function fillValidSingleProduct(window: UiWindow, document: Document): void {
@@ -229,5 +237,106 @@ describe('smartstore input UI', () => {
     expect(data).not.toHaveProperty('heroImage');
     expect(product).not.toHaveProperty('mainImage');
     expect(product).not.toHaveProperty('secondaryImage');
+  });
+
+  test('기존 3개 상품과 특징 배열을 모든 입력 필드에 복원한다', () => {
+    const { window, document } = loadUi();
+    const input = {
+      storeName: '불러온 스토어',
+      storeUrl: 'https://smartstore.naver.com/loaded',
+      category: '생활용품',
+      targetCustomer: '실용 소비층',
+      newsletterTopic: '불러온 큐레이션',
+      tone: '친절한 말투',
+      products: Array.from({ length: 3 }, (_, index) => ({
+        name: `상품 ${index + 1}`,
+        price: `${index + 1},000원`,
+        features: [`특징 ${index + 1}-1`, `특징 ${index + 1}-2`],
+        recommendationReason: `추천 ${index + 1}`,
+        url: `https://example.com/${index + 1}`,
+      })),
+    };
+
+    window.HOSSmartStoreInputUI.setInputData(input);
+
+    expect(document.querySelectorAll('.product-card')).toHaveLength(3);
+    expect(document.querySelectorAll('.feature-input')).toHaveLength(6);
+    expect(preview(document)).toEqual(input);
+  });
+
+  test('검증 오류를 화면에 사람이 읽을 수 있게 표시한다', async () => {
+    const { window, document } = loadUi();
+    window.fetch = vi.fn(
+      async () =>
+        new Response(
+          JSON.stringify({
+            ok: false,
+            message: '입력 내용을 확인해 주세요.',
+            issues: [
+              { path: 'storeName', message: '스토어명은(는) 필수입니다.' },
+            ],
+          }),
+          { status: 400, headers: { 'Content-Type': 'application/json' } },
+        ),
+    );
+
+    click(document, '#validate-input');
+    await settle(window);
+
+    expect(document.querySelector('#workflow-status')?.textContent).toContain(
+      '입력 내용을 확인해 주세요.',
+    );
+    expect(document.querySelector('#validation-errors')?.textContent).toContain(
+      'storeName: 스토어명은(는) 필수입니다.',
+    );
+  });
+
+  test('확정 후 생성하고 미리보기 버튼을 연다', async () => {
+    const { window, document } = loadUi();
+    fillValidSingleProduct(window, document);
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValueOnce(
+        new Response(
+          JSON.stringify({
+            ok: true,
+            confirmedHash: 'confirmed-input',
+            message: '입력 내용을 확정했습니다.',
+          }),
+          { status: 200, headers: { 'Content-Type': 'application/json' } },
+        ),
+      )
+      .mockResolvedValueOnce(
+        new Response(
+          JSON.stringify({
+            ok: true,
+            previewUrl: '/preview/newsletter.html',
+            message: '뉴스레터와 HTML 생성을 완료했습니다.',
+          }),
+          { status: 200, headers: { 'Content-Type': 'application/json' } },
+        ),
+      );
+    window.fetch = fetchMock;
+    const open = vi.fn();
+    window.open = open as typeof window.open;
+
+    click(document, '#confirm-input');
+    await settle(window);
+    expect(
+      document.querySelector<HTMLButtonElement>('#generate-newsletter')
+        ?.disabled,
+    ).toBe(false);
+
+    click(document, '#generate-newsletter');
+    await settle(window);
+    expect(
+      document.querySelector<HTMLButtonElement>('#open-preview')?.disabled,
+    ).toBe(false);
+
+    click(document, '#open-preview');
+    expect(open).toHaveBeenCalledWith(
+      expect.stringMatching(/^\/preview\/newsletter\.html\?t=\d+$/),
+      '_blank',
+    );
   });
 });

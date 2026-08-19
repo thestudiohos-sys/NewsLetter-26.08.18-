@@ -2,6 +2,7 @@ import { createOpenAI } from '@ai-sdk/openai';
 import { writeFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
 import { performance } from 'node:perf_hooks';
+import { fileURLToPath } from 'node:url';
 
 import { generateObjectByLLM } from '~/generate-newsletter/llm-queries/generate-object-by-llm';
 
@@ -55,7 +56,16 @@ async function assertModelAvailable(
   }
 }
 
-async function main(): Promise<void> {
+export type SmartStoreNewsletterGenerationResult = {
+  model: string;
+  productCount: number;
+  llmCalls: 1;
+  totalSeconds: number;
+  generationSeconds: number;
+  outputFile: string;
+};
+
+export async function generateSmartStoreNewsletter(): Promise<SmartStoreNewsletterGenerationResult> {
   const totalStartedAt = performance.now();
   const input = await loadSmartStoreInput();
   const baseURL = normalizeBaseUrl(process.env.LM_STUDIO_BASE_URL);
@@ -117,31 +127,46 @@ async function main(): Promise<void> {
 
   const totalMilliseconds = performance.now() - totalStartedAt;
   console.log('[4/4] deterministic 상품 조립 및 newsletter.md 저장 성공');
+  const result: SmartStoreNewsletterGenerationResult = {
+    model: modelId,
+    productCount: input.products.length,
+    llmCalls: 1,
+    totalSeconds: Number((totalMilliseconds / 1_000).toFixed(3)),
+    generationSeconds: Number((generationMilliseconds / 1_000).toFixed(3)),
+    outputFile,
+  };
+
   console.log(
     JSON.stringify(
       {
-        model: modelId,
+        ...result,
         finishReason,
-        productCount: input.products.length,
-        llmCalls: 1,
         llmScope: ['title', 'intro', 'cta'],
-        totalSeconds: Number((totalMilliseconds / 1_000).toFixed(3)),
-        generationSeconds: Number((generationMilliseconds / 1_000).toFixed(3)),
         inputTokens: usage.inputTokens,
         outputTokens: usage.outputTokens,
         reasoningTokens: usage.outputTokenDetails.reasoningTokens ?? null,
         totalTokens: usage.totalTokens,
         outputCharacters: markdown.length,
-        outputFile,
       },
       null,
       2,
     ),
   );
+
+  return result;
 }
 
-main().catch((error: unknown) => {
-  console.error('[FAIL] 스마트스토어 뉴스레터 생성');
-  console.error(error instanceof Error ? error.message : error);
-  process.exitCode = 1;
-});
+function isDirectExecution(): boolean {
+  return Boolean(
+    process.argv[1] &&
+    fileURLToPath(import.meta.url) === resolve(process.argv[1]),
+  );
+}
+
+if (isDirectExecution()) {
+  generateSmartStoreNewsletter().catch((error: unknown) => {
+    console.error('[FAIL] 스마트스토어 뉴스레터 생성');
+    console.error(error instanceof Error ? error.message : error);
+    process.exitCode = 1;
+  });
+}

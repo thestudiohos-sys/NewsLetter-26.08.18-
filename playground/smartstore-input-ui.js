@@ -7,6 +7,16 @@
   const productCountElement = document.querySelector('#product-count');
   const limitMessageElement = document.querySelector('#product-limit-message');
   const previewElement = document.querySelector('#json-preview');
+  const workflowStatus = document.querySelector('#workflow-status');
+  const workflowBadge = document.querySelector('#workflow-badge');
+  const validationErrors = document.querySelector('#validation-errors');
+  const generateButton = document.querySelector('#generate-newsletter');
+  const previewButton = document.querySelector('#open-preview');
+  const actionButtons = [...document.querySelectorAll('.action-grid button')];
+
+  let confirmedHash;
+  let previewUrl;
+  let busy = false;
 
   const optionalValue = (value) => {
     const normalized = value.trim();
@@ -16,6 +26,51 @@
   const addOptionalValue = (target, key, value) => {
     const normalized = optionalValue(value);
     if (normalized !== undefined) target[key] = normalized;
+  };
+
+  const setStatus = (message, state = 'idle') => {
+    workflowStatus.textContent = message;
+    workflowStatus.dataset.state = state;
+    const badges = {
+      idle: '입력 중',
+      success: '준비 완료',
+      error: '확인 필요',
+      busy: '처리 중',
+    };
+    workflowBadge.textContent = badges[state] ?? badges.idle;
+  };
+
+  const clearErrors = () => {
+    validationErrors.replaceChildren();
+  };
+
+  const showErrors = (issues = []) => {
+    clearErrors();
+    for (const issue of issues) {
+      const item = document.createElement('li');
+      item.textContent = issue.path
+        ? `${issue.path}: ${issue.message}`
+        : issue.message;
+      validationErrors.append(item);
+    }
+  };
+
+  const updateActionButtons = () => {
+    for (const button of actionButtons) button.disabled = busy;
+    generateButton.disabled = busy || !confirmedHash;
+    previewButton.disabled = busy || !previewUrl;
+  };
+
+  const setBusy = (value, message) => {
+    busy = value;
+    updateActionButtons();
+    if (message) setStatus(message, value ? 'busy' : 'idle');
+  };
+
+  const invalidateConfirmation = () => {
+    confirmedHash = undefined;
+    previewUrl = undefined;
+    updateActionButtons();
   };
 
   const createFeature = (productCard, value = '') => {
@@ -46,7 +101,11 @@
     addProductButton.disabled = cards.length >= MAX_PRODUCTS;
   };
 
-  const createProduct = () => {
+  const setProductField = (card, field, value = '') => {
+    card.querySelector(`[data-product-field="${field}"]`).value = value;
+  };
+
+  const createProduct = (product = {}) => {
     if (productsElement.children.length >= MAX_PRODUCTS) {
       limitMessageElement.textContent =
         '상품은 최대 5개까지 추가할 수 있습니다.';
@@ -55,7 +114,21 @@
 
     const card = productTemplate.content.firstElementChild.cloneNode(true);
     productsElement.append(card);
-    createFeature(card);
+    for (const field of [
+      'url',
+      'name',
+      'price',
+      'recommendationReason',
+      'mainImage',
+      'secondaryImage',
+    ]) {
+      setProductField(card, field, product[field]);
+    }
+    const features =
+      Array.isArray(product.features) && product.features.length
+        ? product.features
+        : [''];
+    for (const feature of features) createFeature(card, feature);
     limitMessageElement.textContent = '';
     refreshProductLabels();
     updatePreview();
@@ -99,16 +172,75 @@
     return input;
   };
 
+  const setInputData = (input) => {
+    for (const field of [
+      'storeName',
+      'storeUrl',
+      'category',
+      'targetCustomer',
+      'newsletterTopic',
+      'tone',
+      'heroImage',
+    ]) {
+      document.querySelector(`[data-store-field="${field}"]`).value =
+        input[field] ?? '';
+    }
+
+    productsElement.replaceChildren();
+    for (const product of input.products ?? []) createProduct(product);
+    if (productsElement.children.length === 0) createProduct();
+    refreshProductLabels();
+    updatePreview();
+    invalidateConfirmation();
+  };
+
   function updatePreview() {
     previewElement.textContent = JSON.stringify(getInputData(), null, 2);
   }
 
-  document
-    .querySelector('#smartstore-form')
-    .addEventListener('input', updatePreview);
+  const callApi = async (path, options = {}) => {
+    const response = await fetch(path, {
+      ...options,
+      headers: {
+        ...(options.body ? { 'Content-Type': 'application/json' } : {}),
+        ...options.headers,
+      },
+    });
+    const body = await response.json();
+    if (!response.ok || !body.ok) {
+      const error = new Error(body.message ?? '요청을 처리하지 못했습니다.');
+      error.issues = body.issues ?? [];
+      throw error;
+    }
+    return body;
+  };
+
+  const runAction = async (message, action) => {
+    clearErrors();
+    setBusy(true, message);
+    try {
+      const result = await action();
+      setStatus(result.message, 'success');
+      return result;
+    } catch (error) {
+      showErrors(error.issues);
+      setStatus(error.message, 'error');
+      return undefined;
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  document.querySelector('#smartstore-form').addEventListener('input', () => {
+    updatePreview();
+    invalidateConfirmation();
+    clearErrors();
+    setStatus('입력 내용이 변경되었습니다. 저장·검증 후 확정해 주세요.');
+  });
 
   addProductButton.addEventListener('click', () => {
     createProduct();
+    invalidateConfirmation();
   });
 
   productsElement.addEventListener('click', (event) => {
@@ -118,6 +250,7 @@
     if (event.target.closest('.add-feature')) {
       createFeature(productCard);
       updatePreview();
+      invalidateConfirmation();
       return;
     }
 
@@ -126,6 +259,7 @@
       if (rows.length > 1) event.target.closest('.feature-row').remove();
       updateFeatureButtons(productCard);
       updatePreview();
+      invalidateConfirmation();
       return;
     }
 
@@ -133,9 +267,75 @@
       if (productsElement.children.length > 1) productCard.remove();
       refreshProductLabels();
       updatePreview();
+      invalidateConfirmation();
     }
   });
 
-  window.HOSSmartStoreInputUI = { getInputData };
+  document.querySelector('#load-input').addEventListener('click', () =>
+    runAction('기존 데이터를 불러오는 중입니다.', async () => {
+      const result = await callApi('/api/input');
+      if (!result.exists) {
+        return { message: '저장된 입력 데이터가 아직 없습니다.' };
+      }
+      setInputData(result.input);
+      return { message: '기존 데이터를 모든 입력 필드에 불러왔습니다.' };
+    }),
+  );
+
+  document.querySelector('#save-input').addEventListener('click', () =>
+    runAction('입력 내용을 저장하는 중입니다.', async () => {
+      const result = await callApi('/api/save', {
+        method: 'POST',
+        body: JSON.stringify(getInputData()),
+      });
+      invalidateConfirmation();
+      return result;
+    }),
+  );
+
+  document.querySelector('#validate-input').addEventListener('click', () =>
+    runAction('입력 내용을 검증하는 중입니다.', () =>
+      callApi('/api/validate', {
+        method: 'POST',
+        body: JSON.stringify(getInputData()),
+      }),
+    ),
+  );
+
+  document.querySelector('#confirm-input').addEventListener('click', () =>
+    runAction('입력 내용을 검증하고 확정하는 중입니다.', async () => {
+      const result = await callApi('/api/confirm', {
+        method: 'POST',
+        body: JSON.stringify(getInputData()),
+      });
+      confirmedHash = result.confirmedHash;
+      previewUrl = undefined;
+      return result;
+    }),
+  );
+
+  generateButton.addEventListener('click', () =>
+    runAction(
+      'LM Studio로 뉴스레터를 생성하고 HTML을 렌더링하는 중입니다.',
+      async () => {
+        const result = await callApi('/api/generate', {
+          method: 'POST',
+          body: JSON.stringify({ confirmedHash }),
+        });
+        previewUrl = result.previewUrl;
+        return result;
+      },
+    ),
+  );
+
+  previewButton.addEventListener('click', () => {
+    if (previewUrl) window.open(`${previewUrl}?t=${Date.now()}`, '_blank');
+  });
+
+  window.HOSSmartStoreInputUI = {
+    getInputData,
+    setInputData,
+  };
   createProduct();
+  updateActionButtons();
 })();

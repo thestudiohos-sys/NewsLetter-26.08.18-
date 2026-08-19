@@ -66,7 +66,8 @@ h1 {
 }
 
 .draft-badge,
-#preview-status {
+#preview-status,
+.workflow-badge {
   padding: 7px 11px;
   border-radius: 999px;
   background: #e2f3c4;
@@ -253,6 +254,77 @@ textarea:focus {
   color: #fff;
 }
 
+.action-help {
+  margin: -8px 0 20px;
+  color: #617069;
+  font-size: 13px;
+  line-height: 1.65;
+}
+
+.action-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.action-grid .button {
+  width: 100%;
+  margin: 0;
+}
+
+.button-confirm {
+  background: #dcebc4;
+  color: #2f4b21;
+}
+
+.button-preview {
+  border: 1px solid #243f32;
+  background: #fff;
+  color: #243f32;
+}
+
+.workflow-status {
+  margin-top: 18px;
+  padding: 13px 15px;
+  border: 1px solid #d8dcd6;
+  border-radius: 10px;
+  background: #f7f8f5;
+  color: #46574e;
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+.workflow-status[data-state='success'] {
+  border-color: #b8d39f;
+  background: #f1f8e7;
+  color: #315329;
+}
+
+.workflow-status[data-state='error'] {
+  border-color: #e2bdb5;
+  background: #fff6f3;
+  color: #933a29;
+}
+
+.workflow-status[data-state='busy'] {
+  border-color: #afc2b7;
+  background: #f0f5f2;
+}
+
+.validation-errors {
+  display: grid;
+  gap: 6px;
+  margin: 12px 0 0;
+  padding-left: 22px;
+  color: #a23e2c;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.validation-errors:empty {
+  display: none;
+}
+
 .button-secondary {
   margin-top: 3px;
   border: 1px solid #b9c6be;
@@ -351,6 +423,10 @@ textarea:focus {
   }
 
   .field-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .action-grid {
     grid-template-columns: 1fr;
   }
 
