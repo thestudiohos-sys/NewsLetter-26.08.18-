@@ -355,7 +355,9 @@ textarea:focus {
   position: sticky;
   top: 18px;
   align-self: start;
+  max-height: calc(100vh - 36px);
   margin-bottom: 0;
+  overflow-y: auto;
   background: #18231e;
   color: #eff5f1;
 }
@@ -371,8 +373,125 @@ textarea:focus {
   line-height: 1.6;
 }
 
+.summary-list,
+.summary-product-card dl {
+  display: grid;
+  gap: 0;
+  margin: 0;
+}
+
+.summary-list {
+  overflow: hidden;
+  border: 1px solid #34473e;
+  border-radius: 12px;
+  background: #111a16;
+}
+
+.summary-row {
+  display: grid;
+  grid-template-columns: minmax(90px, 0.7fr) minmax(0, 1.3fr);
+  gap: 12px;
+  padding: 11px 13px;
+  border-bottom: 1px solid #2a3a32;
+}
+
+.summary-row:last-child {
+  border-bottom: 0;
+}
+
+.summary-row dt {
+  color: #9eafa6;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.summary-row dd {
+  min-width: 0;
+  margin: 0;
+  color: #eff5f1;
+  font-size: 12px;
+  font-weight: 650;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
+.product-summary-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 24px 0 10px;
+}
+
+.product-summary-heading h3 {
+  margin: 0;
+  font-size: 15px;
+}
+
+.product-summary-heading span {
+  color: #9ec5ad;
+  font-size: 12px;
+  font-weight: 750;
+}
+
+.product-summary {
+  display: grid;
+  gap: 10px;
+}
+
+.summary-product-card {
+  overflow: hidden;
+  border: 1px solid #34473e;
+  border-radius: 12px;
+  background: #111a16;
+}
+
+.summary-product-title {
+  display: grid;
+  gap: 4px;
+  padding: 13px;
+  border-bottom: 1px solid #34473e;
+}
+
+.summary-product-title span {
+  color: #9ec5ad;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+}
+
+.summary-product-title strong {
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.summary-product-card .summary-row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+}
+
+.json-details {
+  margin-top: 20px;
+  border-top: 1px solid #34473e;
+  padding-top: 16px;
+}
+
+.json-details summary {
+  cursor: pointer;
+  color: #c9d9cf;
+  font-size: 12px;
+  font-weight: 750;
+  list-style-position: inside;
+}
+
+.json-details > p {
+  margin: 10px 0;
+  color: #91a299;
+  font-size: 11px;
+  line-height: 1.5;
+}
+
 #json-preview {
-  max-height: calc(100vh - 220px);
+  max-height: 420px;
   margin: 0;
   padding: 18px;
   overflow: auto;
@@ -394,10 +513,12 @@ textarea:focus {
 
   .preview-panel {
     position: static;
+    max-height: none;
+    overflow-y: visible;
   }
 
   #json-preview {
-    max-height: 520px;
+    max-height: 420px;
   }
 }
 

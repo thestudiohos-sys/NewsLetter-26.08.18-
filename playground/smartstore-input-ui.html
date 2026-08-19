@@ -207,16 +207,32 @@
       <aside class="preview-panel" aria-labelledby="preview-title">
         <div class="preview-heading">
           <div>
-            <p class="step-label">LIVE PREVIEW</p>
-            <h2 id="preview-title">입력 데이터 미리보기</h2>
+            <p class="step-label">LIVE SUMMARY</p>
+            <h2 id="preview-title">입력 내용 요약</h2>
           </div>
-          <span id="preview-status">자동 갱신</span>
+          <span id="preview-status">실시간 반영</span>
         </div>
         <p class="preview-help">
-          아래 JSON은 직접 수정하지 않습니다. 왼쪽 입력 내용이 자동으로
-          반영됩니다.
+          왼쪽에서 입력한 스토어와 상품 정보를 한눈에 확인할 수 있습니다.
         </p>
-        <pre id="json-preview" tabindex="0" aria-live="polite"></pre>
+
+        <dl id="store-summary" class="summary-list" aria-live="polite"></dl>
+
+        <div class="product-summary-heading">
+          <h3>상품 요약</h3>
+          <span id="summary-product-count">0개</span>
+        </div>
+        <div
+          id="product-summary"
+          class="product-summary"
+          aria-live="polite"
+        ></div>
+
+        <details id="json-details" class="json-details">
+          <summary>상세 데이터(JSON) 보기</summary>
+          <p>개발자 확인용 데이터입니다. 이 영역에서는 수정할 수 없습니다.</p>
+          <pre id="json-preview" tabindex="0"></pre>
+        </details>
       </aside>
     </main>
 

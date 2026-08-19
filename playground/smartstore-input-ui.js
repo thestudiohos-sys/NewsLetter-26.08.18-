@@ -7,6 +7,11 @@
   const productCountElement = document.querySelector('#product-count');
   const limitMessageElement = document.querySelector('#product-limit-message');
   const previewElement = document.querySelector('#json-preview');
+  const storeSummaryElement = document.querySelector('#store-summary');
+  const productSummaryElement = document.querySelector('#product-summary');
+  const summaryProductCountElement = document.querySelector(
+    '#summary-product-count',
+  );
   const workflowStatus = document.querySelector('#workflow-status');
   const workflowBadge = document.querySelector('#workflow-badge');
   const validationErrors = document.querySelector('#validation-errors');
@@ -26,6 +31,76 @@
   const addOptionalValue = (target, key, value) => {
     const normalized = optionalValue(value);
     if (normalized !== undefined) target[key] = normalized;
+  };
+
+  const hasValue = (value) =>
+    typeof value === 'string' && value.trim().length > 0;
+
+  const displayValue = (value) => (hasValue(value) ? value.trim() : '미입력');
+
+  const createSummaryRow = (label, value) => {
+    const row = document.createElement('div');
+    row.className = 'summary-row';
+    const term = document.createElement('dt');
+    term.textContent = label;
+    const description = document.createElement('dd');
+    description.textContent = value;
+    row.append(term, description);
+    return row;
+  };
+
+  const renderSummary = (data) => {
+    const storeFields = [
+      ['스토어명', data.storeName],
+      ['스토어 URL', data.storeUrl],
+      ['카테고리', data.category],
+      ['주요 고객', data.targetCustomer],
+      ['뉴스레터 주제', data.newsletterTopic],
+      ['말투', data.tone],
+      ['등록 상품 수', `${data.products.length}개`],
+    ];
+    storeSummaryElement.replaceChildren(
+      ...storeFields.map(([label, value]) =>
+        createSummaryRow(label, displayValue(value)),
+      ),
+    );
+
+    summaryProductCountElement.textContent = `${data.products.length}개`;
+    const cards = data.products.map((product, index) => {
+      const card = document.createElement('article');
+      card.className = 'summary-product-card';
+
+      const heading = document.createElement('div');
+      heading.className = 'summary-product-title';
+      const number = document.createElement('span');
+      number.textContent = `상품 ${index + 1}`;
+      const name = document.createElement('strong');
+      name.textContent = displayValue(product.name);
+      heading.append(number, name);
+
+      const details = document.createElement('dl');
+      details.append(
+        createSummaryRow('가격', displayValue(product.price)),
+        createSummaryRow(
+          '특징',
+          `${product.features.filter(hasValue).length}개`,
+        ),
+        createSummaryRow(
+          '추천 이유',
+          hasValue(product.recommendationReason) ? '있음' : '없음',
+        ),
+        createSummaryRow('상품 URL', hasValue(product.url) ? '있음' : '없음'),
+        createSummaryRow(
+          '이미지',
+          hasValue(product.mainImage) || hasValue(product.secondaryImage)
+            ? '있음'
+            : '없음',
+        ),
+      );
+      card.append(heading, details);
+      return card;
+    });
+    productSummaryElement.replaceChildren(...cards);
   };
 
   const setStatus = (message, state = 'idle') => {
@@ -195,7 +270,9 @@
   };
 
   function updatePreview() {
-    previewElement.textContent = JSON.stringify(getInputData(), null, 2);
+    const data = getInputData();
+    renderSummary(data);
+    previewElement.textContent = JSON.stringify(data, null, 2);
   }
 
   const callApi = async (path, options = {}) => {

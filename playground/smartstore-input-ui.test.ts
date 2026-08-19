@@ -64,6 +64,18 @@ function preview(document: Document): Record<string, unknown> {
   return JSON.parse(document.querySelector('#json-preview')!.textContent!);
 }
 
+function summaryValue(
+  document: Document,
+  containerSelector: string,
+  label: string,
+): string | undefined {
+  const rows = document.querySelectorAll(`${containerSelector} .summary-row`);
+  const row = [...rows].find(
+    (item) => item.querySelector('dt')?.textContent === label,
+  );
+  return row?.querySelector('dd')?.textContent ?? undefined;
+}
+
 async function settle(window: UiWindow): Promise<void> {
   await new Promise<void>((resolve) => window.setTimeout(resolve, 0));
   await new Promise<void>((resolve) => window.setTimeout(resolve, 0));
@@ -147,6 +159,16 @@ describe('smartstore input UI', () => {
     expect(document.querySelectorAll('[data-product-field]')).toHaveLength(6);
     expect(document.querySelectorAll('.product-card')).toHaveLength(1);
     expect(document.querySelectorAll('.feature-input')).toHaveLength(1);
+    expect(document.querySelector('#preview-title')?.textContent).toBe(
+      '입력 내용 요약',
+    );
+    expect(summaryValue(document, '#store-summary', '스토어명')).toBe('미입력');
+    expect(summaryValue(document, '#store-summary', '등록 상품 수')).toBe(
+      '1개',
+    );
+    expect(
+      document.querySelector('.summary-product-title strong')?.textContent,
+    ).toBe('미입력');
   });
 
   test('입력 결과를 기존 SmartStoreInput schema로 검증할 수 있다', () => {
@@ -175,6 +197,12 @@ describe('smartstore input UI', () => {
     expect(document.querySelector('#product-count')?.textContent).toBe(
       `상품 ${count} / 5`,
     );
+    expect(document.querySelector('#summary-product-count')?.textContent).toBe(
+      `${count}개`,
+    );
+    expect(document.querySelectorAll('.summary-product-card')).toHaveLength(
+      count,
+    );
   });
 
   test('6번째 상품 추가를 방지한다', () => {
@@ -195,9 +223,13 @@ describe('smartstore input UI', () => {
 
     click(document, '.remove-product');
     expect(document.querySelectorAll('.product-card')).toHaveLength(2);
+    expect(summaryValue(document, '#store-summary', '등록 상품 수')).toBe(
+      '2개',
+    );
 
     click(document, '.remove-product');
     expect(document.querySelectorAll('.product-card')).toHaveLength(1);
+    expect(document.querySelectorAll('.summary-product-card')).toHaveLength(1);
     expect(
       document.querySelector<HTMLButtonElement>('.remove-product')?.disabled,
     ).toBe(true);
@@ -226,6 +258,66 @@ describe('smartstore input UI', () => {
       storeName: '변경된 스토어',
       products: [{ name: '변경된 상품' }],
     });
+    expect(summaryValue(document, '#store-summary', '스토어명')).toBe(
+      '변경된 스토어',
+    );
+    expect(
+      document.querySelector('.summary-product-title strong')?.textContent,
+    ).toBe('변경된 상품');
+  });
+
+  test('스토어 정보 일부만 입력해도 빈 값과 입력값을 구분해 요약한다', () => {
+    const { window, document } = loadUi();
+
+    input(
+      window,
+      document,
+      '[data-store-field="storeName"]',
+      '부분 입력 스토어',
+    );
+    input(window, document, '[data-store-field="category"]', '리빙');
+
+    expect(summaryValue(document, '#store-summary', '스토어명')).toBe(
+      '부분 입력 스토어',
+    );
+    expect(summaryValue(document, '#store-summary', '카테고리')).toBe('리빙');
+    expect(summaryValue(document, '#store-summary', '스토어 URL')).toBe(
+      '미입력',
+    );
+    expect(summaryValue(document, '#store-summary', '말투')).toBe('미입력');
+  });
+
+  test('상품 1개의 입력 상태를 사용자용 항목으로 요약한다', () => {
+    const { window, document } = loadUi();
+    fillValidSingleProduct(window, document);
+
+    expect(
+      document.querySelector('.summary-product-title strong')?.textContent,
+    ).toBe('가상 상품');
+    expect(summaryValue(document, '.summary-product-card', '가격')).toBe(
+      '19,900원',
+    );
+    expect(summaryValue(document, '.summary-product-card', '특징')).toBe('1개');
+    expect(summaryValue(document, '.summary-product-card', '추천 이유')).toBe(
+      '있음',
+    );
+    expect(summaryValue(document, '.summary-product-card', '상품 URL')).toBe(
+      '있음',
+    );
+    expect(summaryValue(document, '.summary-product-card', '이미지')).toBe(
+      '있음',
+    );
+  });
+
+  test('상세 JSON은 기본으로 닫혀 있고 사용자가 펼칠 수 있다', () => {
+    const { document } = loadUi();
+    const details = document.querySelector<HTMLDetailsElement>('#json-details');
+    const summary = details?.querySelector('summary');
+
+    expect(details?.open).toBe(false);
+    summary?.click();
+    expect(details?.open).toBe(true);
+    expect(preview(document)).toHaveProperty('products');
   });
 
   test('비어 있는 선택 필드는 JSON Preview에서 제외한다', () => {
